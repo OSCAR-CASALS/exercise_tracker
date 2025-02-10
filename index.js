@@ -72,8 +72,6 @@ async function add_exercise(req, res){
 
   let dat = req.body.date;
 
-  console.log(dat);
-
   let da;
 
   if(!req.body.date){
@@ -82,8 +80,14 @@ async function add_exercise(req, res){
     da = new Date(dat).toString();
   }
 
+  let id_update = req.body[":_id"];
+
+  if(!req.body[":_id"]){
+    id_update = req.params._id;
+  }
+
   let user_to_mod = await user_model.findByIdAndUpdate(
-    req.body[":_id"],
+    id_update,
     {$push : {
       description: descript,
       duration: dur,
@@ -93,7 +97,6 @@ async function add_exercise(req, res){
   );
 
   if(!user_to_mod){
-    console.log("Not Found")
     res.json({
       username: "",
       description: "",
@@ -150,14 +153,14 @@ async function retrieve_full_exercise(req, res){
         logs.push({
           description: user.description[i],
           duration: user.duration[i],
-          date: user.date[i]
+          date: user.date[i].toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: '2-digit' }).replace(/,/g, "")
         });
       }
     }else{
       logs.push({
         description: user.description[i],
         duration: user.duration[i],
-        date: user.date[i]
+        date: user.date[i].toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: '2-digit' }).replace(/,/g, "")
       });
     }
 
