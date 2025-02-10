@@ -72,12 +72,14 @@ async function add_exercise(req, res){
 
   let dat = req.body.date;
 
+  console.log(dat);
+
   let da;
 
-  if(dat != ""){
-    da = new Date(dat).toUTCString();
+  if(!req.body.date){
+    da = new Date().toString();
   }else{
-    da = new Date().toUTCString()
+    da = new Date(dat).toString();
   }
 
   let user_to_mod = await user_model.findByIdAndUpdate(
@@ -90,8 +92,24 @@ async function add_exercise(req, res){
     {new: true}
   );
 
-  res.json(user_to_mod);
-
+  if(!user_to_mod){
+    console.log("Not Found")
+    res.json({
+      username: "",
+      description: "",
+      duration: "",
+      date: "",
+      _id: ""
+    });
+  }else{
+    res.json({
+      username: user_to_mod.username,
+      description: user_to_mod.description[user_to_mod.description.length - 1],
+      duration: user_to_mod.duration[user_to_mod.duration.length - 1],
+      date: user_to_mod.date[user_to_mod.date.length - 1].toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: '2-digit' }).replace(/,/g, ""),
+      _id: user_to_mod._id
+    });
+  }
 }
 
 app.post("/api/users/:_id/exercises", add_exercise);
@@ -148,7 +166,7 @@ async function retrieve_full_exercise(req, res){
     }
   }
 
-  res.json({count: count_exercises, log: logs});
+  res.json({username: user.username, _id: user._id, count: count_exercises, log: logs});
   
 }
 
